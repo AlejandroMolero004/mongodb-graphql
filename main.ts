@@ -32,7 +32,7 @@ const schemaGQL=`#graphql
   }
   type Mutation{
     addDinosaurio(id:Int!,nombre:String!,tipo:String!):Dinosaurio
-
+    deleteDinosaurio(id:Int!):String
   }
 `
 const resolvers={
@@ -60,7 +60,7 @@ const resolvers={
         if(dino){
           throw new Error("Dino already exists");
         }
-       const{insertedID}=await dinosaurios.insertOne({
+       const{insertedId}=await dinosaurios.insertOne({
           id: args.id,
           nombre: args.nombre,
           tipo: args.tipo,
@@ -71,6 +71,17 @@ const resolvers={
         nombre: args.nombre,
         tipo: args.tipo,
       };
+      },
+      deleteDinosaurio:async(_:unknown,args:{id:number}):Promise<string|undefined>=>{
+        const dino=await dinosaurios.findOne({id:args.id})
+        if(dino){
+          const{deletedCount}=await dinosaurios.deleteOne({id:args.id})
+          if(deletedCount===0){
+            return "user not found"
+          }
+          return "user eliminated"
+        }
+        return "dino no encontrado"
       }
     }
 
