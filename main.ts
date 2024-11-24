@@ -102,10 +102,10 @@ const resolvers={
 }
 
   const server=new ApolloServer({
-  typeDefs:schemaGQL,
-  resolvers
+    typeDefs:schemaGQL,
+    resolvers
   })
-  const{url}=await startStandaloneServer(server,{
-  listen:{port:8081}
-  })
+  
+  const{url}=await startStandaloneServer(server,{listen:{port:8081}})
+
   console.log(`Server running on:${url}`);
