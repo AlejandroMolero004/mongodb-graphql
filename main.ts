@@ -33,6 +33,7 @@ const schemaGQL=`#graphql
   type Mutation{
     addDinosaurio(id:Int!,nombre:String!,tipo:String!):Dinosaurio
     deleteDinosaurio(id:Int!):String
+    modifyDinosaurio(id:Int!,nombre:String!,tipo:String!):String
   }
 `
 const resolvers={
@@ -44,7 +45,6 @@ const resolvers={
       },
       getDinosaurio:async(_:unknown,args:{id:number}):Promise<Dinosaurio|null>=>{
         const dinosauriosDB=await dinosaurios.findOne({id:args.id})
-        console.log(dinosauriosDB)
         if(dinosauriosDB==null){
           return null
         }
@@ -77,9 +77,23 @@ const resolvers={
         if(dino){
           const{deletedCount}=await dinosaurios.deleteOne({id:args.id})
           if(deletedCount===0){
-            return "user not found"
+            return "dino not found"
           }
-          return "user eliminated"
+          return "dino eliminated"
+        }
+        return "dino not found"
+      },
+      modifyDinosaurio:async(_:unknown,args:{id:number,nombre:string,tipo:string}):Promise<string|undefined>=>{
+        const dino= await dinosaurios.findOne({id:args.id})
+        if(dino){
+          const{modifiedCount}= await dinosaurios.updateOne(
+            {"id":args.id},
+            {$set:{id:args.id,nombre:args.nombre,tipo:args.tipo}}
+          )
+          if(modifiedCount===0){
+            return "dino not found"
+          }
+           return "dino modificated"
         }
         return "dino no encontrado"
       }
@@ -87,11 +101,11 @@ const resolvers={
 
 }
 
-const server=new ApolloServer({
+  const server=new ApolloServer({
   typeDefs:schemaGQL,
   resolvers
-})
-const{url}=await startStandaloneServer(server,{
-  listen:{port:8000}
-})
-console.log(`Server running on:${url}`);
+  })
+  const{url}=await startStandaloneServer(server,{
+  listen:{port:8081}
+  })
+  console.log(`Server running on:${url}`);
